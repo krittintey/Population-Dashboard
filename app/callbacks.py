@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 from data import df_visualize, df_popData, last_modified_update
 from forecast import createForecastDataframe, modelEvaluation
 import numpy as np
+import os
 
 def register_callbacks(app):
 
@@ -371,17 +372,21 @@ def register_callbacks(app):
         ), None
 
     # Callback for updating forecasted content
+    df_predict_pop, df_forecast_pop = createForecastDataframe(df_popData[df_popData.columns[0:3]], last_modified_update)
+    df_predict_birth, df_forecast_birth = createForecastDataframe(df_popData[df_popData.columns[3:5]], last_modified_update)
+    df_predict_death, df_forecast_death = createForecastDataframe(df_popData[df_popData.columns[5:7]], last_modified_update)
+    os.environ['UPDATE_DATA'] = 'False'
+
     @app.callback([Output("forecast-content", "children"), Output("forecast-graph-title", "children"), Output("evaluation-content", "children")], [Input("url", "pathname")])
     def update_forecast_graph(pathname):
         if pathname in ["/", "/population"]:
-            df_predict, df_forecast = createForecastDataframe(df_popData[df_popData.columns[0:3]], last_modified_update)
-            rmspe = modelEvaluation(df_popData[df_popData.columns[0:3]], df_predict)
+            rmspe = modelEvaluation(df_popData[df_popData.columns[0:3]], df_predict_pop)
 
             df_forecast_visualize = list()
-            df_male = dict(x=df_forecast.index, y=df_forecast['POP_MALE'], name='Forecasted Male', type='line')
-            df_female = dict(x=df_forecast.index, y=df_forecast['POP_FEMALE'], name='Forecasted Female', type='line')
-            df_total = dict(x=df_forecast.index, y=df_forecast['POP_MALE'] + df_forecast['POP_FEMALE'], name='Forecasted Total', type='line')
-            df_house = dict(x=df_forecast.index, y=df_forecast['HOUSE'], name='Forecasted House', type='line')
+            df_male = dict(x=df_forecast_pop.index, y=df_forecast_pop['POP_MALE'], name='Forecasted Male', type='line')
+            df_female = dict(x=df_forecast_pop.index, y=df_forecast_pop['POP_FEMALE'], name='Forecasted Female', type='line')
+            df_total = dict(x=df_forecast_pop.index, y=df_forecast_pop['POP_MALE'] + df_forecast_pop['POP_FEMALE'], name='Forecasted Total', type='line')
+            df_house = dict(x=df_forecast_pop.index, y=df_forecast_pop['HOUSE'], name='Forecasted House', type='line')
             df_forecast_visualize = [df_male, df_female, df_house, df_total]
 
             figure1 = {
@@ -426,13 +431,12 @@ def register_callbacks(app):
 
             return dcc.Graph(id='forecast-graph', figure=figure1), title, dcc.Graph(id='evaluation-graph', figure=figure2)
         elif pathname == "/births":
-            df_predict, df_forecast = createForecastDataframe(df_popData[df_popData.columns[3:5]], last_modified_update)
-            rmspe = modelEvaluation(df_popData[df_popData.columns[3:5]], df_predict)
+            rmspe = modelEvaluation(df_popData[df_popData.columns[3:5]], df_predict_birth)
 
             df_forecast_visualize = list()
-            df_male = dict(x=df_forecast.index, y=df_forecast['BIRTH_MALE'], name='Forecasted Male', type='line')
-            df_female = dict(x=df_forecast.index, y=df_forecast['BIRTH_FEMALE'], name='Forecasted Female', type='line')
-            df_total = dict(x=df_forecast.index, y=df_forecast['BIRTH_MALE'] + df_forecast['BIRTH_FEMALE'], name='Forecasted Total', type='line')
+            df_male = dict(x=df_forecast_birth.index, y=df_forecast_birth['BIRTH_MALE'], name='Forecasted Male', type='line')
+            df_female = dict(x=df_forecast_birth.index, y=df_forecast_birth['BIRTH_FEMALE'], name='Forecasted Female', type='line')
+            df_total = dict(x=df_forecast_birth.index, y=df_forecast_birth['BIRTH_MALE'] + df_forecast_birth['BIRTH_FEMALE'], name='Forecasted Total', type='line')
             df_forecast_visualize = [df_male, df_female, df_total]
 
             figure1 = {
@@ -477,13 +481,12 @@ def register_callbacks(app):
 
             return dcc.Graph(id='forecast-graph', figure=figure1), title, dcc.Graph(id='forecast-graph', figure=figure2)
         elif pathname == "/deaths":
-            df_predict, df_forecast = createForecastDataframe(df_popData[df_popData.columns[5:7]], last_modified_update)
-            rmspe = modelEvaluation(df_popData[df_popData.columns[5:7]], df_predict)
+            rmspe = modelEvaluation(df_popData[df_popData.columns[5:7]], df_predict_death)
 
             df_forecast_visualize = list()
-            df_male = dict(x=df_forecast.index, y=df_forecast['DEATH_MALE'], name='Forecasted Male', type='line')
-            df_female = dict(x=df_forecast.index, y=df_forecast['DEATH_FEMALE'], name='Forecasted Female', type='line')
-            df_total = dict(x=df_forecast.index, y=df_forecast['DEATH_MALE'] + df_forecast['DEATH_FEMALE'], name='Forecasted Total', type='line')
+            df_male = dict(x=df_forecast_death.index, y=df_forecast_death['DEATH_MALE'], name='Forecasted Male', type='line')
+            df_female = dict(x=df_forecast_death.index, y=df_forecast_death['DEATH_FEMALE'], name='Forecasted Female', type='line')
+            df_total = dict(x=df_forecast_death.index, y=df_forecast_death['DEATH_MALE'] + df_forecast_death['DEATH_FEMALE'], name='Forecasted Total', type='line')
             df_forecast_visualize = [df_male, df_female, df_total]
             
             figure1 = {
