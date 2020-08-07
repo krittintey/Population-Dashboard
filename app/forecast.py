@@ -61,7 +61,7 @@ def createForecastResult(dataset, column, isUpdated):
     model_files = [modelname for modelname in os.listdir(modelpath) if modelname.endswith('.pkl')]
     model_name = f"{column}.pkl"
 
-    if (isUpdated is False):
+    if (any(md == model_name for md in model_files)) | (isUpdated is False):
         model = pickle.load(open(modelpath + model_name, 'rb'))
     else:
         statistic_test = adfuller(dataset, autolag='AIC')
