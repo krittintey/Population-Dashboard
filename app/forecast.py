@@ -61,8 +61,22 @@ def createForecastResult(dataset, column, isUpdated):
     model_files = [modelname for modelname in os.listdir(modelpath) if modelname.endswith('.pkl')]
     model_name = f"{column}.pkl"
 
-    if (any(md == model_name for md in model_files)) | (isUpdated is False):
-        model = pickle.load(open(modelpath + model_name, 'rb'))
+    if any(md == model_name for md in model_files):
+        if isUpdated is False:
+            model = pickle.load(open(modelpath + model_name, 'rb'))
+        else:
+            statistic_test = adfuller(dataset, autolag='AIC')
+            if statistic_test[0] > 0.05:
+                stationarity = False
+            else:
+                stationarity = True
+
+            AIC, minIndex = gridSearch(dataset, stationarity)
+            
+            order = AIC[minIndex][0]
+            seasonal_order = AIC[minIndex][1]
+            model = trainModel(dataset, order, seasonal_order, stationarity)
+            pickle.dump(model, open(modelpath + model_name, 'wb'))
     else:
         statistic_test = adfuller(dataset, autolag='AIC')
         if statistic_test[0] > 0.05:
