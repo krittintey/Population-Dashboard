@@ -1,7 +1,5 @@
 # Population Dashboard using Dash (Plotly)
 
-Dockerize a Python Dash app for quick prototyping.
-
 ## Switch mode when data is updated
 
 ```
