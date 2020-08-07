@@ -1,5 +1,10 @@
 # Population Dashboard using Dash (Plotly)
 
+## Caution!
+
+The data should have the same name and format like `pop_data.csv`
+or you can modify the file name in `data.py`
+
 ## Switch mode when data is updated
 
 ```
