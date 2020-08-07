@@ -10,7 +10,9 @@ ENV UPDATE_DATA True # False
 
 ```
 docker build -t dashboard .
-docker run -d -p 8050:8050 dashboard
+docker run --rm -p 8050:8050 dashboard
+(When you want to update the models)
+docker run --rm --env UPDATE_DATA=True -p 8050:8050 dashboard
 ```
 
 ## Access the page
